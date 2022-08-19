@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tabsFragment">
+    <fragment
+        android:id="@+id/tabsFragment"
+        android:name="com.example.complexux.features.tabs.TabsFragment"
+        android:label="TabsFragment" >
+        <action
+            android:id="@+id/action_tabsFragment_to_addCitiesListFragment"
+            app:destination="@id/addCitiesListFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/addCitiesListFragment"
+        android:name="com.example.complexux.features.add_cities_list.AddCitiesListFragment"
+        android:label="AddCitiesListFragment" />
+</navigation>
