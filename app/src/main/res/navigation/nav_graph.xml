@@ -14,6 +14,6 @@
     </fragment>
     <dialog
         android:id="@+id/addCitiesListFragment"
-        android:name="com.example.complexux.features.add_cities_list.AddCitiesListFragment"
+        android:name="com.example.complexux.features.select_cities_list.SelectCitiesListFragment"
         android:label="AddCitiesListFragment" />
 </navigation>

@@ -1,8 +1,15 @@
 package com.example.complexux.features.tabs
 
+import android.annotation.SuppressLint
+import android.content.ClipData
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.DragEvent
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +27,8 @@ class TabsFragment(
     private val binding: FragmentTabsBinding by viewBinding()
 
 
+    @SuppressLint("ClickableViewAccessibility")
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.apply {
             pager.adapter = PagesAdapter(this@TabsFragment)
@@ -63,6 +72,7 @@ class TabsFragment(
 
                 override fun onTabReselected(tab: TabLayout.Tab?) {}
             })
+
         }
 
 

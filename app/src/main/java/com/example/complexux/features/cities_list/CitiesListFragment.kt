@@ -1,6 +1,8 @@
 package com.example.complexux.features.cities_list
 
 import android.os.Bundle
+import android.util.Log
+import android.view.DragEvent
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -76,6 +78,34 @@ class CitiesListFragment : Fragment(R.layout.fragment_cities_list) {
         itemTouchHelper.attachToRecyclerView(binding.recycler)
         binding.recycler.adapter = adapter
         adapter.submitList(cities)
+
+        binding.root.setOnDragListener { v, event ->
+            when(event.action){
+                DragEvent.ACTION_DRAG_STARTED -> {
+                    Log.d("!!!", "ACTION_DRAG_STARTED")
+                }
+                DragEvent.ACTION_DRAG_LOCATION -> {
+                    Log.d("!!!", "ACTION_DRAG_LOCATION")
+                }
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    Log.d("!!!", "ACTION_DRAG_ENTERED")
+                }
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    Log.d("!!!", "ACTION_DRAG_ENDED")
+                }
+                DragEvent.ACTION_DROP -> {
+                    Log.d("!!!", "ACTION_DROP")
+                }
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    Log.d("!!!", "ACTION_DRAG_EXITED")
+                }
+            }
+            true
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
 }

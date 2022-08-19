@@ -4,7 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.fragment.findNavController
 import com.example.complexux.R
-import com.example.complexux.features.add_cities_list.AddCitiesListFragment
+import com.example.complexux.features.select_cities_list.SelectCitiesListFragment
 import com.example.complexux.features.cities_list.CitiesListFragment
 import com.example.complexux.features.tabs.TabsFragment
 
@@ -18,10 +18,15 @@ class NavigationFragmentFactory : FragmentFactory() {
                 onCancelAdd = { tabLayout.getTabAt(0)!!.select() }
                 findNavController().navigate(R.id.action_tabsFragment_to_addCitiesListFragment)
             }
-            AddCitiesListFragment::class.java.name -> AddCitiesListFragment{
-                onCancelAdd()
-                onCancelAdd = {}
-            }
+            SelectCitiesListFragment::class.java.name -> SelectCitiesListFragment(
+                onCancel = {
+                    onCancelAdd()
+                    onCancelAdd = {}
+                },
+                onBack = {
+                    findNavController().navigateUp()
+                }
+            )
             CitiesListFragment::class.java.name -> {CitiesListFragment()}
             else -> super.instantiate(classLoader, className)
         }
