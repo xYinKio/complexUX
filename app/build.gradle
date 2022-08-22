@@ -48,4 +48,5 @@ dependencies {
 
     implementation 'com.github.kirich1409:viewbindingpropertydelegate:1.5.6'
     implementation 'com.github.sparrow007:carouselrecyclerview:1.2.5'
+    implementation "com.github.skydoves:colorpickerview:2.2.4"
 }

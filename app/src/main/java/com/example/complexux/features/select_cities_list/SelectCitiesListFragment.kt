@@ -19,9 +19,14 @@ import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.complexux.databinding.CityItemBinding
 import com.example.complexux.databinding.FragmentSelectCitiesListBinding
+import com.example.complexux.databinding.ItemAddCitiesListBinding
 import com.example.complexux.databinding.ItemCitiesListBinding
-import com.example.complexux.recycler_adapter.recyclerAdapter
+import com.example.complexux.recycler_adapter.MultipleTypeViewHolder
+import com.example.complexux.recycler_adapter.SingleTypeViewHolder
+import com.example.complexux.recycler_adapter.multipleTypeRecyclerAdapter
+import com.example.complexux.recycler_adapter.singleTypeRecyclerAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.N)
 class SelectCitiesListFragment(
@@ -39,32 +44,53 @@ class SelectCitiesListFragment(
     private val snapHelper = PagerSnapHelper()
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun citiesListAdapter() = recyclerAdapter<CitiesList, ItemCitiesListBinding>(
-        onBind = { citiesList, holder ->
-            name.text = citiesList.name
-            if (citiesAdapters[citiesList.name] == null) {
-                citiesAdapters[citiesList.name] = recyclerAdapter<City, CityItemBinding>(
-                    onBind = { city, _ ->
-                        name.text = city.name
-                        date.text = city.date
-                        root.setOnLongClickListener {
-                            viewModel.obtainIntention(Intention.StartDragAndDrop(holder.absoluteAdapterPosition))
-                            true
-                        }
-                    }
-                )
+    private fun citiesListAdapter() = multipleTypeRecyclerAdapter<ListItem>(
+        onBind = { item, holder ->
+            if (this is ItemCitiesListBinding){
+                showList((item as ListItem.Data).citiesList, holder)
             }
-            val adapter = citiesAdapters[citiesList.name]!!
-            recycler.adapter = adapter
-            name.setOnLongClickListener {
-                viewModel.obtainIntention(Intention.StartDragAndDrop(holder.absoluteAdapterPosition))
-                true
+        },
+        itemViewType = { position ->
+            when(currentList[position]){
+                is ListItem.Data -> 0
+                is ListItem.Add -> 1
             }
-
-            adapter.submitList(citiesList.cities)
+        },
+        onCreateViewHolder = { parent, viewType ->
+            when(viewType){
+                0 -> MultipleTypeViewHolder.from(ItemCitiesListBinding::class.java, parent)
+                1 -> MultipleTypeViewHolder.from(ItemAddCitiesListBinding::class.java, parent)
+                else -> {throw Exception("Unknown view type $viewType")}
+            }
         }
     )
 
+    private fun ItemCitiesListBinding.showList(
+        citiesList: CitiesList,
+        holder: RecyclerView.ViewHolder
+    ) {
+        name.text = citiesList.name
+        if (citiesAdapters[citiesList.name] == null) {
+            citiesAdapters[citiesList.name] = singleTypeRecyclerAdapter<City, CityItemBinding>(
+                onBind = { city, _ ->
+                    name.text = city.name
+                    date.text = city.date
+                    root.setOnLongClickListener {
+                        viewModel.obtainIntention(Intention.StartDragAndDrop(holder.absoluteAdapterPosition))
+                        true
+                    }
+                }
+            )
+        }
+        val adapter = citiesAdapters[citiesList.name]!!
+        recycler.adapter = adapter
+        name.setOnLongClickListener {
+            viewModel.obtainIntention(Intention.StartDragAndDrop(holder.absoluteAdapterPosition))
+            true
+        }
+
+        adapter.submitList(citiesList.cities)
+    }
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -105,7 +131,15 @@ class SelectCitiesListFragment(
                         binding.fullName.text = it.currentListFullName
                     }
                     is State.Updated -> {
-                        citiesListAdapter.submitList(it.data.citiesLists)
+                        lifecycleScope.launch {
+                            val items = it.data.citiesLists
+                                .map { ListItem.Data(it) }
+                                .toMutableList<ListItem>()
+                                .apply { add(ListItem.Add) }
+
+                            citiesListAdapter.submitList(items)
+                        }
+
                         binding.fullName.text = it.data.currentListFullName
                     }
                     is State.DragAndDropStarted -> {

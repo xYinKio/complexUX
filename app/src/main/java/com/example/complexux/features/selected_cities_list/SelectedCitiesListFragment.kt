@@ -11,7 +11,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.complexux.R
 import com.example.complexux.databinding.CityItemBinding
 import com.example.complexux.databinding.FragmentCitiesListBinding
-import com.example.complexux.recycler_adapter.recyclerAdapter
+import com.example.complexux.recycler_adapter.singleTypeRecyclerAdapter
 import java.util.*
 
 class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
@@ -52,7 +52,7 @@ class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
     }
 
 
-    private val adapter by lazy { recyclerAdapter<City, CityItemBinding>(
+    private val adapter by lazy { singleTypeRecyclerAdapter<City, CityItemBinding>(
         onBind = {item, holder ->
             name.text = item.name
             date.text = item.date

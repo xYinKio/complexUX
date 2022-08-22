@@ -1,8 +1,11 @@
 package com.example.complexux.features.select_cities_list
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SelectCitiesListViewModel : ViewModel() {
 
@@ -126,15 +129,19 @@ class SelectCitiesListViewModel : ViewModel() {
     }
 
     fun obtainIntention(intention: Intention){
-        when(intention){
-            is Intention.SelectList -> {
-                data.currentListFullName = data.citiesLists[intention.index].fullName
-                _state.value = State.ListSelected(data.currentListFullName)
-            }
-            is Intention.StartDragAndDrop -> {
-                _state.value = State.DragAndDropStarted(data.citiesLists[intention.index].name)
+        viewModelScope.launch(Dispatchers.IO) {
+            when(intention){
+                is Intention.SelectList -> {
+                    if (intention.index >= data.citiesLists.size) return@launch
+                    data.currentListFullName = data.citiesLists[intention.index].fullName
+                    _state.value = State.ListSelected(data.currentListFullName)
+                }
+                is Intention.StartDragAndDrop -> {
+                    _state.value = State.DragAndDropStarted(data.citiesLists[intention.index].name)
+                }
             }
         }
+
     }
 
     private data class Data(
