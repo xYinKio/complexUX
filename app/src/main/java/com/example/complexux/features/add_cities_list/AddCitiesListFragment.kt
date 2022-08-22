@@ -56,7 +56,7 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
         binding.apply {
             colorPicker.attachBrightnessSlider(binding.brightnessSlideBar)
             recycler.adapter = adapter
-            recycler.itemAnimator?.changeDuration = 0
+            recycler.itemAnimator = null
 
             val state = viewModel.flow.value.state
             updateAll(state)
