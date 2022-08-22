@@ -9,11 +9,19 @@
         android:name="com.example.complexux.features.tabs.TabsFragment"
         android:label="TabsFragment" >
         <action
-            android:id="@+id/action_tabsFragment_to_addCitiesListFragment"
-            app:destination="@id/addCitiesListFragment" />
+            android:id="@+id/action_tabsFragment_to_selectCitiesListFragment"
+            app:destination="@id/selectCitiesListFragment" />
     </fragment>
     <dialog
-        android:id="@+id/addCitiesListFragment"
+        android:id="@+id/selectCitiesListFragment"
         android:name="com.example.complexux.features.select_cities_list.SelectCitiesListFragment"
+        android:label="AddCitiesListFragment" >
+        <action
+            android:id="@+id/action_selectCitiesListFragment_to_addCitiesListFragment"
+            app:destination="@id/addCitiesListFragment" />
+    </dialog>
+    <fragment
+        android:id="@+id/addCitiesListFragment"
+        android:name="com.example.complexux.features.add_cities_list.AddCitiesListFragment"
         android:label="AddCitiesListFragment" />
 </navigation>

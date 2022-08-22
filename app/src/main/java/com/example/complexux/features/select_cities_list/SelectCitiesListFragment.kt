@@ -30,7 +30,8 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.N)
 class SelectCitiesListFragment(
     private val onCancel: () -> Unit,
-    private val onBack: Fragment.() -> Unit
+    private val onBack: Fragment.() -> Unit,
+    private val onAddClick: Fragment.() -> Unit
 ) : BottomSheetDialogFragment() {
 
     private val binding: FragmentSelectCitiesListBinding by viewBinding(CreateMethod.INFLATE)
@@ -45,8 +46,9 @@ class SelectCitiesListFragment(
     @SuppressLint("ClickableViewAccessibility")
     private fun citiesListAdapter() = multipleTypeRecyclerAdapter<ListItem>(
         onBind = { item, holder ->
-            if (this is ItemCitiesListBinding){
-                showList((item as ListItem.Data).citiesList, holder)
+            when(this){
+                is ItemCitiesListBinding -> {showList((item as ListItem.Data).citiesList, holder)}
+                is ItemAddCitiesListBinding -> { root.setOnClickListener { onAddClick() } }
             }
         },
         itemViewType = { position ->
@@ -169,8 +171,5 @@ class SelectCitiesListFragment(
         super.onCancel(dialog)
         onCancel()
     }
-
-
-
 
 }
