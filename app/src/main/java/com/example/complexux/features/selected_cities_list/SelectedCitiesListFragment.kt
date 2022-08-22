@@ -1,4 +1,4 @@
-package com.example.complexux.features.cities_list
+package com.example.complexux.features.selected_cities_list
 
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +14,7 @@ import com.example.complexux.databinding.FragmentCitiesListBinding
 import com.example.complexux.recycler_adapter.recyclerAdapter
 import java.util.*
 
-class CitiesListFragment : Fragment(R.layout.fragment_cities_list) {
+class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
 
     private val binding: FragmentCitiesListBinding by viewBinding()
     private val itemTouchHelper: ItemTouchHelper by lazy {
@@ -81,31 +81,11 @@ class CitiesListFragment : Fragment(R.layout.fragment_cities_list) {
 
         binding.root.setOnDragListener { v, event ->
             when(event.action){
-                DragEvent.ACTION_DRAG_STARTED -> {
-                    Log.d("!!!", "ACTION_DRAG_STARTED")
-                }
-                DragEvent.ACTION_DRAG_LOCATION -> {
-                    Log.d("!!!", "ACTION_DRAG_LOCATION")
-                }
-                DragEvent.ACTION_DRAG_ENTERED -> {
-                    Log.d("!!!", "ACTION_DRAG_ENTERED")
-                }
-                DragEvent.ACTION_DRAG_ENDED -> {
-                    Log.d("!!!", "ACTION_DRAG_ENDED")
-                }
                 DragEvent.ACTION_DROP -> {
-                    Log.d("!!!", "ACTION_DROP")
-                }
-                DragEvent.ACTION_DRAG_EXITED -> {
-                    Log.d("!!!", "ACTION_DRAG_EXITED")
+                    Log.d("!!!", "${event.clipData.getItemAt(0).text}")
                 }
             }
             true
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-    }
-
 }

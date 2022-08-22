@@ -129,7 +129,10 @@ class SelectCitiesListViewModel : ViewModel() {
         when(intention){
             is Intention.SelectList -> {
                 data.currentListFullName = data.citiesLists[intention.index].fullName
-                _state.value = State.ListSelected(data)
+                _state.value = State.ListSelected(data.currentListFullName)
+            }
+            is Intention.StartDragAndDrop -> {
+                _state.value = State.DragAndDropStarted(data.citiesLists[intention.index].name)
             }
         }
     }

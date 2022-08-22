@@ -36,38 +36,35 @@ class SelectCitiesListFragment(
 
     private val viewModel: SelectCitiesListViewModel by viewModels()
 
+    private val snapHelper = PagerSnapHelper()
+
     @SuppressLint("ClickableViewAccessibility")
     private fun citiesListAdapter() = recyclerAdapter<CitiesList, ItemCitiesListBinding>(
-        onBind = { citiesList, _ ->
-            val superRoot = root
+        onBind = { citiesList, holder ->
             name.text = citiesList.name
             if (citiesAdapters[citiesList.name] == null) {
                 citiesAdapters[citiesList.name] = recyclerAdapter<City, CityItemBinding>(
                     onBind = { city, _ ->
                         name.text = city.name
                         date.text = city.date
-                        root.setOnLongClickListener { startDragAndDrop(superRoot) }
+                        root.setOnLongClickListener {
+                            viewModel.obtainIntention(Intention.StartDragAndDrop(holder.absoluteAdapterPosition))
+                            true
+                        }
                     }
                 )
             }
             val adapter = citiesAdapters[citiesList.name]!!
             recycler.adapter = adapter
-            name.setOnLongClickListener { startDragAndDrop(root) }
+            name.setOnLongClickListener {
+                viewModel.obtainIntention(Intention.StartDragAndDrop(holder.absoluteAdapterPosition))
+                true
+            }
 
             adapter.submitList(citiesList.cities)
         }
     )
 
-    private fun startDragAndDrop(it: View): Boolean {
-        val clipData = ClipData.newPlainText("", "")
-        val shadowBuilder = View.DragShadowBuilder(it)
-
-        val flags = View.DRAG_FLAG_GLOBAL
-        it.startDragAndDrop(clipData, shadowBuilder, null, flags)
-        onCancel()
-        onBack()
-        return true
-    }
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -81,7 +78,6 @@ class SelectCitiesListFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.recycler.adapter = citiesListAdapter
-        val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(binding.recycler)
         binding.recycler.addOnScrollListener(
             object : RecyclerView.OnScrollListener(){
@@ -106,17 +102,32 @@ class SelectCitiesListFragment(
             viewModel.state.collect{
                 when(it){
                     is State.ListSelected -> {
-                        binding.fullName.text = it.data.currentListFullName
+                        binding.fullName.text = it.currentListFullName
                     }
                     is State.Updated -> {
                         citiesListAdapter.submitList(it.data.citiesLists)
                         binding.fullName.text = it.data.currentListFullName
                     }
+                    is State.DragAndDropStarted -> {
+                        startDragAndDrop(
+                            view = snapHelper.findSnapView(binding.recycler.layoutManager)!!,
+                            citiesListName = it.citiesListName
+                        )
+                    }
                 }
             }
         }
+    }
 
+    private fun startDragAndDrop(view: View, citiesListName: String): Boolean {
+        val clipData = ClipData.newPlainText("Cities", citiesListName)
+        val shadowBuilder = View.DragShadowBuilder(view)
 
+        val flags = View.DRAG_FLAG_GLOBAL
+        view.startDragAndDrop(clipData, shadowBuilder, null, flags)
+        onCancel()
+        onBack()
+        return true
     }
 
     override fun onCancel(dialog: DialogInterface) {
