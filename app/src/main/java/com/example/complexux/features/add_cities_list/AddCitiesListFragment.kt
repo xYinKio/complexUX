@@ -89,7 +89,9 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
                     is Event.Filtered -> { adapter.submitList(ArrayList(it.state.cities)) }
                     is Event.Updated -> { binding.updateAll(it.state) }
                     is Event.CitySelected,
-                    is Event.CityUnselected -> { adapter.submitList(ArrayList(it.state.cities)) }
+                    is Event.CityUnselected -> { adapter.submitList(ArrayList(it.state.cities))
+                        binding.complete.text = "Создать (${it.state.selectedCities.size}/5)"
+                    }
                     else -> {}
                 }
             }
@@ -101,5 +103,6 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
         name.setText(state.name)
         fullName.setText(state.fullName)
         adapter.submitList(state.cities)
+        binding.complete.text = "Создать (${state.selectedCities.size}/5)"
     }
 }
