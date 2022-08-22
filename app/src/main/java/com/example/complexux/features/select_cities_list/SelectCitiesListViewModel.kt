@@ -9,9 +9,9 @@ import kotlinx.coroutines.launch
 
 class SelectCitiesListViewModel : ViewModel() {
 
-    private val data = Data()
-    private val _state = MutableStateFlow<State>(State.Updated(data))
-    val state = _state.asStateFlow()
+    private val data = State()
+    private val _state = MutableStateFlow<Event>(Event.Updated(data))
+    val flow = _state.asStateFlow()
 
     init {
         data.citiesLists = listOf(
@@ -125,7 +125,7 @@ class SelectCitiesListViewModel : ViewModel() {
             ),
         )
         data.currentListFullName = data.citiesLists[0].name
-        _state.value = State.Updated(data)
+        _state.value = Event.Updated(data)
     }
 
     fun obtainIntention(intention: Intention){
@@ -134,18 +134,19 @@ class SelectCitiesListViewModel : ViewModel() {
                 is Intention.SelectList -> {
                     if (intention.index >= data.citiesLists.size) return@launch
                     data.currentListFullName = data.citiesLists[intention.index].fullName
-                    _state.value = State.ListSelected(data.currentListFullName)
+                    _state.value = Event.ListSelected(data)
                 }
                 is Intention.StartDragAndDrop -> {
-                    _state.value = State.DragAndDropStarted(data.citiesLists[intention.index].name)
+                    _state.value = Event.DragAndDropStarted(data)
                 }
             }
         }
 
     }
 
-    private data class Data(
+    private data class State(
+        override var currentListName: String = "",
         override var currentListFullName: String = "",
         override var citiesLists: List<CitiesList> = listOf()
-    ) : State.Data
+    ) : Event.State
 }

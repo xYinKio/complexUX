@@ -22,7 +22,6 @@ import com.example.complexux.databinding.FragmentSelectCitiesListBinding
 import com.example.complexux.databinding.ItemAddCitiesListBinding
 import com.example.complexux.databinding.ItemCitiesListBinding
 import com.example.complexux.recycler_adapter.MultipleTypeViewHolder
-import com.example.complexux.recycler_adapter.SingleTypeViewHolder
 import com.example.complexux.recycler_adapter.multipleTypeRecyclerAdapter
 import com.example.complexux.recycler_adapter.singleTypeRecyclerAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -124,33 +123,35 @@ class SelectCitiesListFragment(
             setInfinite(true)
         }
 
+        updateView(viewModel.flow.value)
+
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.state.collect{
+            viewModel.flow.collect{
                 when(it){
-                    is State.ListSelected -> {
-                        binding.fullName.text = it.currentListFullName
-                    }
-                    is State.Updated -> {
-                        lifecycleScope.launch {
-                            val items = it.data.citiesLists
-                                .map { ListItem.Data(it) }
-                                .toMutableList<ListItem>()
-                                .apply { add(ListItem.Add) }
-
-                            citiesListAdapter.submitList(items)
-                        }
-
-                        binding.fullName.text = it.data.currentListFullName
-                    }
-                    is State.DragAndDropStarted -> {
+                    is Event.ListSelected -> { binding.fullName.text = it.state.currentListFullName }
+                    is Event.Updated -> { updateView(it) }
+                    is Event.DragAndDropStarted -> {
                         startDragAndDrop(
                             view = snapHelper.findSnapView(binding.recycler.layoutManager)!!,
-                            citiesListName = it.citiesListName
+                            citiesListName = it.state.currentListName
                         )
                     }
                 }
             }
         }
+    }
+
+    private fun updateView(it: Event) {
+        lifecycleScope.launch {
+            val items = it.state.citiesLists
+                .map { ListItem.Data(it) }
+                .toMutableList<ListItem>()
+                .apply { add(ListItem.Add) }
+
+            citiesListAdapter.submitList(items)
+        }
+
+        binding.fullName.text = it.state.currentListFullName
     }
 
     private fun startDragAndDrop(view: View, citiesListName: String): Boolean {
