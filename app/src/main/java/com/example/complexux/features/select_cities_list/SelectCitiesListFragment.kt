@@ -5,14 +5,16 @@ import android.content.ClipData
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.*
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.complexux.databinding.CityItemBinding
@@ -31,6 +33,8 @@ class SelectCitiesListFragment(
 
     private val citiesAdapters = mutableMapOf<String, ListAdapter<City, *>>()
     private val citiesListAdapter by lazy { citiesListAdapter() }
+
+    private val viewModel: SelectCitiesListViewModel by viewModels()
 
     @SuppressLint("ClickableViewAccessibility")
     private fun citiesListAdapter() = recyclerAdapter<CitiesList, ItemCitiesListBinding>(
@@ -85,8 +89,7 @@ class SelectCitiesListFragment(
                     val centerView = snapHelper.findSnapView(recyclerView.layoutManager)
                     if (newState == RecyclerView.SCROLL_STATE_IDLE){
                         val position = recyclerView.layoutManager!!.getPosition(centerView!!)
-                        val fullName = citiesListAdapter.currentList[position].fullName
-                        binding.fullName.text = fullName
+                        viewModel.obtainIntention(Intention.SelectList(position))
                     }
 
                     super.onScrollStateChanged(recyclerView, newState)
@@ -98,116 +101,22 @@ class SelectCitiesListFragment(
             setAlpha(true)
             setInfinite(true)
         }
-        citiesListAdapter.submitList(listOf(
-            CitiesList(
-                name = "Europe 1",
-                fullName = "Some full name 1",
-                cities = listOf(
-                    City(
-                        name = "City 1",
-                        date = "date 1"
-                    ),
-                    City(
-                        name = "City 2",
-                        date = "date 2"
-                    ),
-                    City(
-                        name = "City 3",
-                        date = "date 3"
-                    ),
-                    City(
-                        name = "City 4",
-                        date = "date 4"
-                    ),
-                    City(
-                        name = "City 5",
-                        date = "date 5"
-                    ),
-                ),
-                color = "#FF121212"
-            ),
-            CitiesList(
-                name = "Europe 2",
-                fullName = "Some full name 2",
-                cities = listOf(
-                    City(
-                        name = "City 1",
-                        date = "date 1"
-                    ),
-                    City(
-                        name = "City 2",
-                        date = "date 2"
-                    ),
-                    City(
-                        name = "City 3",
-                        date = "date 3"
-                    ),
-                    City(
-                        name = "City 4",
-                        date = "date 4"
-                    ),
-                    City(
-                        name = "City 5",
-                        date = "date 5"
-                    ),
-                ),
-                color = "#FF121212"
-            ),
-            CitiesList(
-                name = "Europe 3",
-                fullName = "Some full name 3",
-                cities = listOf(
-                    City(
-                        name = "City 1",
-                        date = "date 1"
-                    ),
-                    City(
-                        name = "City 2",
-                        date = "date 2"
-                    ),
-                    City(
-                        name = "City 3",
-                        date = "date 3"
-                    ),
-                    City(
-                        name = "City 4",
-                        date = "date 4"
-                    ),
-                    City(
-                        name = "City 5",
-                        date = "date 5"
-                    ),
-                ),
-                color = "#FF121212"
-            ),
-            CitiesList(
-                name = "Europe 4",
-                fullName = "Some full name 4",
-                cities = listOf(
-                    City(
-                        name = "City 1",
-                        date = "date 1"
-                    ),
-                    City(
-                        name = "City 2",
-                        date = "date 2"
-                    ),
-                    City(
-                        name = "City 3",
-                        date = "date 3"
-                    ),
-                    City(
-                        name = "City 4",
-                        date = "date 4"
-                    ),
-                    City(
-                        name = "City 5",
-                        date = "date 5"
-                    ),
-                ),
-                color = "#FF121212"
-            ),
-        ))
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.state.collect{
+                when(it){
+                    is State.ListSelected -> {
+                        binding.fullName.text = it.data.currentListFullName
+                    }
+                    is State.Updated -> {
+                        citiesListAdapter.submitList(it.data.citiesLists)
+                        binding.fullName.text = it.data.currentListFullName
+                    }
+                }
+            }
+        }
+
+
     }
 
     override fun onCancel(dialog: DialogInterface) {
