@@ -3,10 +3,7 @@ package com.example.complexux.features.add_cities_list
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.CompoundButton
-import android.widget.RadioGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.widget.doOnTextChanged
@@ -30,6 +27,16 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
             name.text = item.name
             date.text = item.date
             checkBox.isChecked = item.isSelected
+
+            checkBox.isEnabled = when{
+                item.isSelected -> true
+                item.isSelected && isSelectEnabled() -> true
+                !item.isSelected && isSelectEnabled() -> true
+                !item.isSelected && !isSelectEnabled() -> false
+                else -> false
+            }
+
+
             checkBox.setOnClickListener {
                 if (checkBox.isChecked){
                     viewModel.obtainIntention(Intention.SelectCity(item))
@@ -38,14 +45,18 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
                 }
             }
         },
-        areItemsTheSame = {old, new -> old.name == new.name}
+        areItemsTheSame = {old, new -> old.name == new.name},
+        areContentsTheSame = { _, _ -> false}
     ) }
+
+    private fun isSelectEnabled() : Boolean = viewModel.flow.value.state.isSelectEnabled
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.apply {
             colorPicker.attachBrightnessSlider(binding.brightnessSlideBar)
             recycler.adapter = adapter
+            recycler.itemAnimator?.changeDuration = 0
 
             val state = viewModel.flow.value.state
             updateAll(state)
@@ -75,17 +86,17 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
             viewModel.flow.collect{
                 when(it){
                     is Event.ColorSelected -> binding.color.backgroundTintList = ColorStateList.valueOf(it.state.color)
-                    is Event.Filtered -> { adapter.submitList(it.state.cities) }
+                    is Event.Filtered -> { adapter.submitList(ArrayList(it.state.cities)) }
                     is Event.Updated -> { binding.updateAll(it.state) }
                     is Event.CitySelected,
-                    is Event.CityUnselected -> { adapter.submitList(it.state.cities) }
+                    is Event.CityUnselected -> { adapter.submitList(ArrayList(it.state.cities)) }
                     else -> {}
                 }
             }
         }
     }
 
-    private fun FragmentAddCitiesListBinding.updateAll(state: Event.State) {
+    private fun FragmentAddCitiesListBinding.updateAll(state: State) {
         colorPicker.setInitialColor(state.color)
         name.setText(state.name)
         fullName.setText(state.fullName)

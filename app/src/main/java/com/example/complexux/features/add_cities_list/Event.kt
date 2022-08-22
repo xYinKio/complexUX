@@ -10,13 +10,4 @@ sealed interface Event{
     class CitySelected(override val state: State) : Event
     class CityUnselected(override val state: State) : Event
     class Updated(override val state: State) : Event
-
-    interface State{
-        val name: String
-        val fullName: String
-        val color: Int
-        val filterText: String
-        val cities: List<City>
-        val selectedCities: List<City>
-    }
 }

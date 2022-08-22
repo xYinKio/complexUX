@@ -1,16 +1,17 @@
 package com.example.complexux.features.add_cities_list
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+private const val MAX_CITIES_COUNT = 5
+
 class AddCitiesListViewModel : ViewModel() {
 
-    private val _flow = MutableStateFlow<Event>(Event.Init(State()))
+    private val _flow = MutableStateFlow<Event>(Event.Init(StateImpl()))
     val flow = _flow.asStateFlow()
 
-    private val state = State()
+    private val state = StateImpl()
 
     private val allCities = listOf(
         CityImpl("name1", "date", false),
@@ -65,14 +66,15 @@ class AddCitiesListViewModel : ViewModel() {
             is Intention.SelectCity -> {
                 intention.city as CityImpl
                 intention.city.isSelected = true
-                Log.d("!!!", "${intention.city.isSelected}")
                 state.selectedCities.add(intention.city)
+                state.isSelectEnabled = state.selectedCities.size <= MAX_CITIES_COUNT - 1
                 _flow.value = Event.CitySelected(state)
             }
             is Intention.UnselectCity -> {
                 intention.city as CityImpl
                 intention.city.isSelected = false
                 state.selectedCities.remove(intention.city)
+                state.isSelectEnabled = state.selectedCities.size <= MAX_CITIES_COUNT - 1
                 _flow.value = Event.CityUnselected(state)
             }
         }
@@ -82,15 +84,16 @@ class AddCitiesListViewModel : ViewModel() {
     private data class CityImpl(
         override val name: String,
         override val date: String,
-        override var isSelected: Boolean
+        override var isSelected: Boolean,
     ) : City
 
-    private data class State(
+    private data class StateImpl(
         override var name: String = "",
         override var fullName: String = "",
         override var color: Int = 0xFF0000,
         override var filterText: String = "",
         override var cities: List<CityImpl> = listOf(),
         override var selectedCities: MutableList<CityImpl> = mutableListOf(),
-    ) : Event.State
+        override var isSelectEnabled: Boolean = true,
+    ) : State
 }
