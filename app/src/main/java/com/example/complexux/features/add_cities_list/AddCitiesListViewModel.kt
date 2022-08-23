@@ -45,7 +45,11 @@ class AddCitiesListViewModel : ViewModel() {
     fun obtainIntention(intention: Intention){
 
         when(intention){
-            Intention.Complete -> {/*TODO*/}
+            Intention.Complete -> {
+                if (state.selectedCities.isEmpty()){
+                    _flow.value = Event.ErrorNoSelected(state)
+                }
+            }
             is Intention.Filter -> {
                 val filtered = allCities.filter { it.name.uppercase().contains(intention.text.uppercase()) }
                 state.cities = filtered

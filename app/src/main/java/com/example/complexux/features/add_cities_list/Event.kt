@@ -10,4 +10,5 @@ sealed interface Event{
     class CitySelected(override val state: State) : Event
     class CityUnselected(override val state: State) : Event
     class Updated(override val state: State) : Event
+    class ErrorNoSelected(override val state: State) : Event
 }

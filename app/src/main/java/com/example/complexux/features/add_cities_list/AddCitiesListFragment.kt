@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.widget.doOnTextChanged
@@ -76,6 +77,7 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
                     return true
                 }
             })
+            complete.setOnClickListener { viewModel.obtainIntention(Intention.Complete) }
 
 
         }
@@ -91,6 +93,10 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
                     is Event.CitySelected,
                     is Event.CityUnselected -> { adapter.submitList(ArrayList(it.state.cities))
                         binding.complete.text = "Создать (${it.state.selectedCities.size}/5)"
+                    }
+                    is Event.ErrorNoSelected -> {
+                        Toast.makeText(requireContext(), "Не выбрано городов", Toast.LENGTH_SHORT)
+                            .show()
                     }
                     else -> {}
                 }
