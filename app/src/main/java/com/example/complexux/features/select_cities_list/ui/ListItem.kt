@@ -1,4 +1,4 @@
-package com.example.complexux.features.select_cities_list
+package com.example.complexux.features.select_cities_list.ui
 
 sealed interface ListItem {
     data class Data(val citiesList: CitiesList) : ListItem

@@ -1,4 +1,4 @@
-package com.example.complexux.features.select_cities_list
+package com.example.complexux.features.select_cities_list.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -6,9 +6,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.fragment.findNavController
 import com.example.complexux.R
-import com.example.complexux.features.selected_cities_list.SelectedCitiesListFragment
-import com.example.complexux.features.select_cities_list.CitiesList
-import com.example.complexux.features.select_cities_list.SelectCitiesListFragment
+import com.example.complexux.features.selected_cities_list.ui.SelectedCitiesListFragment
+import com.example.complexux.features.select_cities_list.ui.SelectCitiesListFragment
 import com.example.complexux.features.tabs.TabsFragment
 
 class NavigationFragmentFactory : FragmentFactory() {

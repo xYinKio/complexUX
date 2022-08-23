@@ -1,4 +1,4 @@
-package com.example.complexux.features.selected_cities_list
+package com.example.complexux.features.selected_cities_list.ui
 
 import android.os.Bundle
 import android.util.Log

@@ -1,4 +1,4 @@
-package com.example.complexux.features.select_cities_list
+package com.example.complexux.features.select_cities_list.ui
 
 sealed interface Intention{
     data class SelectList(val index: Int) : Intention

@@ -14,7 +14,7 @@
     </fragment>
     <dialog
         android:id="@+id/selectCitiesListFragment"
-        android:name="com.example.complexux.features.select_cities_list.SelectCitiesListFragment"
+        android:name="com.example.complexux.features.select_cities_list.ui.SelectCitiesListFragment"
         android:label="AddCitiesListFragment" >
         <action
             android:id="@+id/action_selectCitiesListFragment_to_addCitiesListFragment"
@@ -22,6 +22,6 @@
     </dialog>
     <fragment
         android:id="@+id/addCitiesListFragment"
-        android:name="com.example.complexux.features.add_cities_list.AddCitiesListFragment"
+        android:name="com.example.complexux.features.add_cities_list.ui.AddCitiesListFragment"
         android:label="AddCitiesListFragment" />
 </navigation>

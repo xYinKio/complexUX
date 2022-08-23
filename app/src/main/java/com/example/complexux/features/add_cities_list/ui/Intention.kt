@@ -1,4 +1,4 @@
-package com.example.complexux.features.add_cities_list
+package com.example.complexux.features.add_cities_list.ui
 
 sealed interface Intention{
     data class TypeName(val text: String) : Intention

@@ -1,4 +1,4 @@
-package com.example.complexux.features.add_cities_list
+package com.example.complexux.features.add_cities_list.ui
 
 import android.content.res.ColorStateList
 import android.os.Build
@@ -66,8 +66,16 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
             colorPicker.colorListener =
                 ColorListener { color, _ -> viewModel.obtainIntention(Intention.SelectColor(color)) }
 
-            name.doOnTextChanged { text, _, _, _ -> viewModel.obtainIntention(Intention.TypeName(text.toString()))  }
-            fullName.doOnTextChanged { text, _, _, _ -> viewModel.obtainIntention(Intention.TypeName(text.toString()))  }
+            name.doOnTextChanged { text, _, _, _ -> viewModel.obtainIntention(
+                Intention.TypeName(
+                    text.toString()
+                )
+            )  }
+            fullName.doOnTextChanged { text, _, _, _ -> viewModel.obtainIntention(
+                Intention.TypeName(
+                    text.toString()
+                )
+            )  }
 
             search.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
                 override fun onQueryTextSubmit(query: String): Boolean = true
