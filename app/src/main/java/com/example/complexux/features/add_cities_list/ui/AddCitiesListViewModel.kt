@@ -1,87 +1,80 @@
 package com.example.complexux.features.add_cities_list.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.complexux.features.add_cities_list.domain.use_cases.AddCitiesListInteractor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val MAX_CITIES_COUNT = 5
 
-class AddCitiesListViewModel : ViewModel() {
+class AddCitiesListViewModel(
+    private val interactor: AddCitiesListInteractor
+) : ViewModel() {
 
     private val _flow = MutableStateFlow<Event>(Event.Init(StateImpl()))
     val flow = _flow.asStateFlow()
 
     private val state = StateImpl()
 
-    private val allCities = listOf(
-        CityImpl("name1", "date", false),
-        CityImpl("name2", "date", false),
-        CityImpl("name3", "date", false),
-        CityImpl("name4", "date", false),
-        CityImpl("name5", "date", false),
-        CityImpl("name6", "date", false),
-        CityImpl("name7", "date", false),
-        CityImpl("name8", "date", false),
-        CityImpl("name9", "date", false),
-        CityImpl("name10", "date", false),
-        CityImpl("name11", "date", false),
-        CityImpl("name12", "date", false),
-        CityImpl("name13", "date", false),
-        CityImpl("name14", "date", false),
-        CityImpl("name15", "date", false),
-        CityImpl("name16", "date", false),
-        CityImpl("name17", "date", false),
-        CityImpl("name18", "date", false),
-        CityImpl("name19", "date", false),
-        CityImpl("name20", "date", false),
-    )
-
     init {
-        state.cities = allCities
-        _flow.value = Event.Updated(state)
-
+        viewModelScope.launch(Dispatchers.IO) {
+            state.cities = getCities()
+            _flow.value = Event.Updated(state)
+        }
     }
 
-    fun obtainIntention(intention: Intention){
+    private suspend fun getCities() = withContext(Dispatchers.IO){
+        interactor.getCities().map { CityImpl(it.name, it.date, false) }
+    }
 
-        when(intention){
-            Intention.Complete -> {
-                if (state.selectedCities.isEmpty()){
-                    _flow.value = Event.ErrorNoSelected(state)
+
+    fun obtainIntention(intention: Intention){
+        viewModelScope.launch(Dispatchers.Default) {
+            when(intention){
+                Intention.Complete -> {
+                    if (state.selectedCities.isEmpty()){
+                        _flow.value = Event.ErrorNoSelected(state)
+                    }
+                }
+                is Intention.Filter -> {
+                    val filtered = getCities().filter { it.name.uppercase().contains(intention.text.uppercase()) }
+                    state.cities = filtered
+                    _flow.value = Event.Filtered(state)
+                }
+                is Intention.SelectColor -> {
+                    state.color = intention.color
+                    _flow.value = Event.ColorSelected(state)
+                }
+                is Intention.TypeFullName -> {
+                    state.fullName = intention.text
+                    _flow.value = Event.FullNameTyped(state)
+                }
+                is Intention.TypeName -> {
+                    state.name = intention.text
+                    _flow.value = Event.NameTyped(state)
+                }
+                is Intention.SelectCity -> {
+                    intention.city as CityImpl
+                    intention.city.isSelected = true
+                    state.selectedCities.add(intention.city)
+                    state.isSelectEnabled = state.selectedCities.size <= MAX_CITIES_COUNT - 1
+                    _flow.value = Event.CitySelected(state)
+                }
+                is Intention.UnselectCity -> {
+                    intention.city as CityImpl
+                    intention.city.isSelected = false
+                    state.selectedCities.remove(intention.city)
+                    state.isSelectEnabled = state.selectedCities.size <= MAX_CITIES_COUNT - 1
+                    _flow.value = Event.CityUnselected(state)
                 }
             }
-            is Intention.Filter -> {
-                val filtered = allCities.filter { it.name.uppercase().contains(intention.text.uppercase()) }
-                state.cities = filtered
-                _flow.value = Event.Filtered(state)
-            }
-            is Intention.SelectColor -> {
-                state.color = intention.color
-                _flow.value = Event.ColorSelected(state)
-            }
-            is Intention.TypeFullName -> {
-                state.fullName = intention.text
-                _flow.value = Event.FullNameTyped(state)
-            }
-            is Intention.TypeName -> {
-                state.name = intention.text
-                _flow.value = Event.NameTyped(state)
-            }
-            is Intention.SelectCity -> {
-                intention.city as CityImpl
-                intention.city.isSelected = true
-                state.selectedCities.add(intention.city)
-                state.isSelectEnabled = state.selectedCities.size <= MAX_CITIES_COUNT - 1
-                _flow.value = Event.CitySelected(state)
-            }
-            is Intention.UnselectCity -> {
-                intention.city as CityImpl
-                intention.city.isSelected = false
-                state.selectedCities.remove(intention.city)
-                state.isSelectEnabled = state.selectedCities.size <= MAX_CITIES_COUNT - 1
-                _flow.value = Event.CityUnselected(state)
-            }
         }
+
 
     }
 
@@ -100,4 +93,12 @@ class AddCitiesListViewModel : ViewModel() {
         override var selectedCities: MutableList<CityImpl> = mutableListOf(),
         override var isSelectEnabled: Boolean = true,
     ) : State
+
+    class Factory(
+        private val addCitiesListInteractor: AddCitiesListInteractor
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return AddCitiesListViewModel(addCitiesListInteractor) as T
+        }
+    }
 }

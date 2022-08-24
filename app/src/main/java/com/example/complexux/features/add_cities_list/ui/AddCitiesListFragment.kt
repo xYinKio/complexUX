@@ -15,13 +15,16 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.complexux.R
 import com.example.complexux.databinding.FragmentAddCitiesListBinding
 import com.example.complexux.databinding.ItemCityAddCitiesListBinding
+import com.example.complexux.features.add_cities_list.ServiceLocator
 import com.example.complexux.recycler_adapter.singleTypeRecyclerAdapter
 import com.skydoves.colorpickerview.listeners.ColorListener
 
 class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
 
     private val binding: FragmentAddCitiesListBinding by viewBinding()
-    private val viewModel: AddCitiesListViewModel by viewModels()
+    private val viewModel: AddCitiesListViewModel by viewModels{
+        AddCitiesListViewModel.Factory(ServiceLocator.provideInteractor())
+    }
 
     private val adapter by lazy { singleTypeRecyclerAdapter<City, ItemCityAddCitiesListBinding>(
         onBind = {item, _ ->
