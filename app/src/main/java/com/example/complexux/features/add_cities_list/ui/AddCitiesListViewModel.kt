@@ -39,10 +39,16 @@ class AddCitiesListViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             when(intention){
                 Intention.Complete -> {
-                    if (state.selectedCities.isEmpty()){
-                        _flow.value = Event.ErrorNoSelected(state)
-                        return@launch
+                    var canWrite = false
+                    when{
+                        state.selectedCities.isEmpty() -> _flow.value = Event.ErrorNoSelected(state)
+                        state.name.isEmpty() -> _flow.value = Event.ErrorEmptyName(state)
+                        state.fullName.isEmpty() -> _flow.value = Event.ErrorEmptyFullName(state)
+                        else -> {canWrite = true}
                     }
+
+                    if (!canWrite) return@launch
+
                     withContext(Dispatchers.IO){
                         interactor.add(
                             CitiesListInDomain(
@@ -56,6 +62,7 @@ class AddCitiesListViewModel(
                             )
                         )
                     }
+                    _flow.value = Event.Success(state)
 
                 }
                 is Intention.Filter -> {

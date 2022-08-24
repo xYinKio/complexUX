@@ -11,6 +11,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.complexux.R
 import com.example.complexux.databinding.FragmentAddCitiesListBinding
@@ -70,14 +71,10 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
                 ColorListener { color, _ -> viewModel.obtainIntention(Intention.SelectColor(color)) }
 
             name.doOnTextChanged { text, _, _, _ -> viewModel.obtainIntention(
-                Intention.TypeName(
-                    text.toString()
-                )
+                Intention.TypeName(text.toString())
             )  }
             fullName.doOnTextChanged { text, _, _, _ -> viewModel.obtainIntention(
-                Intention.TypeName(
-                    text.toString()
-                )
+                Intention.TypeFullName(text.toString())
             )  }
 
             search.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
@@ -109,6 +106,15 @@ class AddCitiesListFragment : Fragment(R.layout.fragment_add_cities_list) {
                         Toast.makeText(requireContext(), "Не выбрано городов", Toast.LENGTH_SHORT)
                             .show()
                     }
+                    is Event.ErrorEmptyName -> {
+                        Toast.makeText(requireContext(), "Не введено имя", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    is Event.ErrorEmptyFullName -> {
+                        Toast.makeText(requireContext(), "Не введено полное имя", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    is Event.Success -> { findNavController().navigateUp() }
                     else -> {}
                 }
             }
