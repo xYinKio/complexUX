@@ -1,7 +1,7 @@
 package com.example.complexux.features.add_cities_list.domain.gateways
 
-import com.example.complexux.features.add_cities_list.domain.CitiesList
+import com.example.complexux.features.add_cities_list.domain.CitiesListInDomain
 
 interface CitiesLists {
-    fun add(citiesList: CitiesList)
+    fun add(citiesList: CitiesListInDomain)
 }

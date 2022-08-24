@@ -3,6 +3,8 @@ package com.example.complexux.features.add_cities_list.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.complexux.features.add_cities_list.domain.CitiesListInDomain
+import com.example.complexux.features.add_cities_list.domain.CityInDomain
 import com.example.complexux.features.add_cities_list.domain.use_cases.AddCitiesListInteractor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +41,22 @@ class AddCitiesListViewModel(
                 Intention.Complete -> {
                     if (state.selectedCities.isEmpty()){
                         _flow.value = Event.ErrorNoSelected(state)
+                        return@launch
                     }
+                    withContext(Dispatchers.IO){
+                        interactor.add(
+                            CitiesListInDomain(
+                                name = state.name,
+                                fullName = state.fullName,
+                                cities = state.selectedCities.map { CityInDomain(
+                                    it.name,
+                                    it.date
+                                ) },
+                                color = state.color
+                            )
+                        )
+                    }
+
                 }
                 is Intention.Filter -> {
                     val filtered = getCities().filter { it.name.uppercase().contains(intention.text.uppercase()) }

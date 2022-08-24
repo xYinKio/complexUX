@@ -3,20 +3,20 @@ package com.example.complexux.features.cities_storage
 object CitiesStorage {
 
     val cities = listOf(
-        City("Москва", "1147 г"),
-        City("Стамбул", "1923 г"),
-        City("Лондон", "47 г"),
-        City("Санкт-Петербург", "1703 г"),
-        City("Берлин", "1237 г"),
-        City("Мадрид", "1983 г"),
-        City("Киев", "482 г"),
-        City("Рим", "753 г до н. э."),
-        City("Париж", "53 г до н. э."),
-        City("Минск", "1067 г"),
+        CityInStorage("Москва", "1147 г"),
+        CityInStorage("Стамбул", "1923 г"),
+        CityInStorage("Лондон", "47 г"),
+        CityInStorage("Санкт-Петербург", "1703 г"),
+        CityInStorage("Берлин", "1237 г"),
+        CityInStorage("Мадрид", "1983 г"),
+        CityInStorage("Киев", "482 г"),
+        CityInStorage("Рим", "753 г до н. э."),
+        CityInStorage("Париж", "53 г до н. э."),
+        CityInStorage("Минск", "1067 г"),
     )
 
     val citiesLists = mutableListOf(
-        CitiesList(
+        CitiesListInStorage(
             name = "Еврода",
             fullName ="Города европейской части крупнейшего континента на Земле",
             cities = cities.subList(0, 4),

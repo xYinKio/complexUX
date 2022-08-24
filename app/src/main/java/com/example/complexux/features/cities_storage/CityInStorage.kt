@@ -1,6 +1,6 @@
 package com.example.complexux.features.cities_storage
 
-data class City(
+data class CityInStorage(
     val name: String,
     val date: String
 )
