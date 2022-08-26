@@ -157,7 +157,7 @@ class SelectCitiesListFragment(
     }
 
     private fun startDragAndDrop(view: View, citiesListName: String): Boolean {
-        val clipData = ClipData.newPlainText("Cities", citiesListName)
+        val clipData = ClipData.newPlainText("Name", citiesListName)
         val shadowBuilder = View.DragShadowBuilder(view)
 
         val flags = View.DRAG_FLAG_GLOBAL

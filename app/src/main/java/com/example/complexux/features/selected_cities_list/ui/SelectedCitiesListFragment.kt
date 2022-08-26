@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -17,40 +19,9 @@ import java.util.*
 class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
 
     private val binding: FragmentCitiesListBinding by viewBinding()
-    private val itemTouchHelper: ItemTouchHelper by lazy {
-        ItemTouchHelper(object : ItemTouchHelper.Callback(){
-            override fun getMovementFlags(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
-                val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-                return makeMovementFlags(dragFlags, 0)
-            }
+    private val itemTouchHelper: ItemTouchHelper by lazy { itemTouchHelper() }
 
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                val startPosition = viewHolder.absoluteAdapterPosition
-                val endPosition = target.absoluteAdapterPosition
-                if (startPosition < endPosition){
-                    for (i in startPosition until endPosition) {
-                        Collections.swap(cities, i, i + 1)
-                    }
-                } else {
-                    for (i in startPosition downTo endPosition + 1) {
-                        Collections.swap(cities, i, i - 1)
-                    }
-                }
-                adapter.notifyItemMoved(startPosition, endPosition)
-                return true
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-        })
-    }
-
+    private val viewModel: SelectedCitiesListViewModel by viewModels()
 
     private val adapter by lazy { singleTypeRecyclerAdapter<City, CityItemBinding>(
         onBind = {item, holder ->
@@ -65,27 +36,63 @@ class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
         }
     ) }
 
-    private val cities = listOf(
-        City("Saint-Petersburg", "1703 г"),
-        City("Moscow", "1147 г"),
-        City("Chelyabinsk", "1736 г"),
-        City("Volgograd", "1589г"),
-        City("Paris", "53 г до н. э.")
-    )
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         itemTouchHelper.attachToRecyclerView(binding.recycler)
         binding.recycler.adapter = adapter
-        adapter.submitList(cities)
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.flow.collect{
+                when(it){
+                    Event.Init -> {}
+                    is Event.Updated -> adapter.submitList(it.state.cities)
+                }
+
+            }
+        }
+
 
         binding.root.setOnDragListener { v, event ->
             when(event.action){
                 DragEvent.ACTION_DROP -> {
                     Log.d("!!!", "${event.clipData.getItemAt(0).text}")
+                    viewModel.selectCity(event.clipData.getItemAt(0).text.toString())
                 }
             }
             true
         }
     }
+
+
+    private fun itemTouchHelper() = ItemTouchHelper(object : ItemTouchHelper.Callback() {
+        override fun getMovementFlags(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder
+        ): Int {
+            val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+            return makeMovementFlags(dragFlags, 0)
+        }
+
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            val startPosition = viewHolder.absoluteAdapterPosition
+            val endPosition = target.absoluteAdapterPosition
+            if (startPosition < endPosition) {
+                for (i in startPosition until endPosition) {
+                    viewModel.swap(i, i + 1)
+                }
+            } else {
+                for (i in startPosition downTo endPosition + 1) {
+                    viewModel.swap(i, i - 1)
+                }
+            }
+            adapter.notifyItemMoved(startPosition, endPosition)
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+    })
 }

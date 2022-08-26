@@ -15,18 +15,22 @@ class SelectCitiesListViewModel : ViewModel() {
     val flow = _flow.asStateFlow()
 
     init {
-        val repo = Repository()
-        state.citiesLists = repo.getCitiesLists()
-        state.currentListFullName = state.citiesLists[0].name
-        _flow.value = Event.Updated(state)
+        viewModelScope.launch(Dispatchers.Default){
+            val repo = Repository()
+            state.citiesLists = repo.getCitiesLists()
+            selectList(0)
+            _flow.value = Event.Updated(state)
+
+        }
+
     }
 
     fun obtainIntention(intention: Intention){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             when(intention){
                 is Intention.SelectList -> {
                     if (intention.index >= state.citiesLists.size) return@launch
-                    state.currentListFullName = state.citiesLists[intention.index].fullName
+                    selectList(intention.index)
                     _flow.value = Event.ListSelected(state)
                 }
                 is Intention.StartDragAndDrop -> {
@@ -34,7 +38,11 @@ class SelectCitiesListViewModel : ViewModel() {
                 }
             }
         }
+    }
 
+    private fun selectList(index: Int) {
+        state.currentListFullName = state.citiesLists[index].fullName
+        state.currentListName = state.citiesLists[index].name
     }
 
     private data class State(
