@@ -1,7 +1,7 @@
 package com.example.complexux.features.selected_cities_list.ui
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -14,7 +14,6 @@ import com.example.complexux.R
 import com.example.complexux.databinding.CityItemBinding
 import com.example.complexux.databinding.FragmentCitiesListBinding
 import com.example.complexux.recycler_adapter.singleTypeRecyclerAdapter
-import java.util.*
 
 class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
 
@@ -42,10 +41,14 @@ class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
         binding.recycler.adapter = adapter
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.flow.collect{
-                when(it){
+            viewModel.flow.collect{ event ->
+                when(event){
                     Event.Init -> {}
-                    is Event.Updated -> adapter.submitList(it.state.cities)
+                    is Event.Updated -> {
+                        binding.recycler.background = ColorDrawable(event.state.color)
+                        adapter.submitList(event.state.cities)
+                        onUpdatedMap.forEach{it.value.invoke(event.state.name)}
+                    }
                 }
 
             }
@@ -55,7 +58,6 @@ class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
         binding.root.setOnDragListener { v, event ->
             when(event.action){
                 DragEvent.ACTION_DROP -> {
-                    Log.d("!!!", "${event.clipData.getItemAt(0).text}")
                     viewModel.selectCity(event.clipData.getItemAt(0).text.toString())
                 }
             }
@@ -95,4 +97,16 @@ class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
     })
+
+    companion object{
+        private val onUpdatedMap = mutableMapOf<String, (String) -> Unit>()
+
+        fun addOnUpdated(key: String, onUpdated: (String) -> Unit){
+            onUpdatedMap[key] = onUpdated
+        }
+
+        fun removeOnUpdated(key: String){
+            onUpdatedMap.remove(key)
+        }
+    }
 }

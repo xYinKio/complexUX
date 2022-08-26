@@ -18,13 +18,20 @@ class SelectedCitiesListViewModel : ViewModel() {
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            state.cities = CitiesStorage.citiesLists[0].cities.map { City(it.name, it.date) }
+            val citiesList = CitiesStorage.citiesLists[0]
+            state.cities = citiesList.cities.map { City(it.name, it.date) }
+            state.color = citiesList.color
+            state.name = citiesList.name
             _flow.value = Event.Updated(state)
         }
     }
 
     fun selectCity(name: String){
-        state.cities = CitiesStorage.citiesLists.find { it.name.uppercase() == name.uppercase() }!!.cities.map { City(it.name, it.date) }
+        val citiesList =  CitiesStorage.citiesLists
+            .find { it.name.uppercase() == name.uppercase() }!!
+        state.cities = citiesList.cities.map { City(it.name, it.date) }
+        state.color = citiesList.color
+        state.name = citiesList.name
         _flow.value = Event.Updated(state)
     }
 
@@ -37,6 +44,7 @@ class SelectedCitiesListViewModel : ViewModel() {
 
     private data class StateImpl(
         override var cities: List<City> = listOf(),
-        override var color: Int = 0
+        override var color: Int = 0,
+        override var name: String = ""
     ): State
 }

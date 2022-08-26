@@ -1,5 +1,7 @@
 package com.example.complexux.features.cities_storage
 
+import android.graphics.Color
+
 object CitiesStorage {
 
     val cities = listOf(
@@ -20,7 +22,7 @@ object CitiesStorage {
             name = "Еврода",
             fullName ="Города европейской части крупнейшего континента на Земле",
             cities = cities.subList(0, 4),
-            color = 0xFF1212
+            color = Color.parseColor("#332500")
         )
     )
 

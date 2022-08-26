@@ -17,6 +17,8 @@ import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.complexux.R
 import com.example.complexux.databinding.FragmentTabsBinding
+import com.example.complexux.features.select_cities_list.ui.SelectCitiesListFragment
+import com.example.complexux.features.selected_cities_list.ui.SelectedCitiesListFragment
 import com.google.android.material.tabs.TabLayout
 
 class TabsFragment(
@@ -35,12 +37,11 @@ class TabsFragment(
 
             tabsLayout.clearOnTabSelectedListeners()
 
-
             val tab1 = tabsLayout.newTab().apply {
-                text = "Cities Lists"
+                text = "Loading..."
             }
             val tab2 = tabsLayout.newTab().apply {
-                text = "Add Citites List"
+                text = "Select Citites List"
             }
             tabsLayout.addTab(tab1)
             tabsLayout.addTab(tab2)
@@ -76,6 +77,18 @@ class TabsFragment(
         }
 
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SelectedCitiesListFragment.addOnUpdated(this@TabsFragment::class.java.name){
+            binding.tabsLayout.getTabAt(0)!!.text = it
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        SelectedCitiesListFragment.removeOnUpdated(this@TabsFragment::class.java.name)
     }
 
 }
