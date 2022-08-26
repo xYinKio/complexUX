@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +25,8 @@ import com.example.complexux.databinding.ItemCitiesListBinding
 import com.example.complexux.recycler_adapter.MultipleTypeViewHolder
 import com.example.complexux.recycler_adapter.multipleTypeRecyclerAdapter
 import com.example.complexux.recycler_adapter.singleTypeRecyclerAdapter
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 
@@ -85,6 +88,9 @@ class SelectCitiesListFragment(
         }
         val adapter = citiesAdapters[citiesList.name]!!
         recycler.adapter = adapter
+        recycler.layoutManager = object : LinearLayoutManager(requireContext()){
+            override fun canScrollVertically(): Boolean { return false }
+        }
         name.setOnLongClickListener {
             viewModel.obtainIntention(Intention.StartDragAndDrop(holder.absoluteAdapterPosition))
             true
@@ -104,6 +110,12 @@ class SelectCitiesListFragment(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        (dialog as? BottomSheetDialog)?.behavior?.apply {
+            isFitToContents = false
+            state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        }
+
         binding.recycler.adapter = citiesListAdapter
         snapHelper.attachToRecyclerView(binding.recycler)
         binding.recycler.addOnScrollListener(
