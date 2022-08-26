@@ -2,6 +2,8 @@ package com.example.complexux.features.tabs
 
 import android.annotation.SuppressLint
 import android.content.ClipData
+import android.content.res.ColorStateList
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -81,8 +83,12 @@ class TabsFragment(
 
     override fun onResume() {
         super.onResume()
-        SelectedCitiesListFragment.addOnUpdated(this@TabsFragment::class.java.name){
-            binding.tabsLayout.getTabAt(0)!!.text = it
+        SelectedCitiesListFragment.addOnUpdated(this@TabsFragment::class.java.name){name, color ->
+            binding.tabsLayout.getTabAt(0)!!.apply {
+                text = name
+                TabLayout.Tab().
+                view.background = ColorDrawable(color)
+            }
         }
     }
 

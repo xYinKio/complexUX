@@ -45,9 +45,8 @@ class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
                 when(event){
                     Event.Init -> {}
                     is Event.Updated -> {
-                        binding.recycler.background = ColorDrawable(event.state.color)
                         adapter.submitList(event.state.cities)
-                        onUpdatedMap.forEach{it.value.invoke(event.state.name)}
+                        onUpdatedMap.forEach{it.value.invoke(event.state.name, event.state.color)}
                     }
                 }
 
@@ -99,9 +98,9 @@ class SelectedCitiesListFragment() : Fragment(R.layout.fragment_cities_list) {
     })
 
     companion object{
-        private val onUpdatedMap = mutableMapOf<String, (String) -> Unit>()
+        private val onUpdatedMap = mutableMapOf<String, (String, Int) -> Unit>()
 
-        fun addOnUpdated(key: String, onUpdated: (String) -> Unit){
+        fun addOnUpdated(key: String, onUpdated: (String, color: Int) -> Unit){
             onUpdatedMap[key] = onUpdated
         }
 
