@@ -86,7 +86,6 @@ class TabsFragment(
         SelectedCitiesListFragment.addOnUpdated(this@TabsFragment::class.java.name){name, color ->
             binding.tabsLayout.getTabAt(0)!!.apply {
                 text = name
-                TabLayout.Tab().
                 view.background = ColorDrawable(color)
             }
         }
